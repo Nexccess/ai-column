@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --ink: #1a1814;
+  --ink-mid: #4a4640;
+  --ink-light: #8a8680;
+  --ink-faint: #c8c4be;
+  --paper: #faf9f6;
+  --paper-warm: #f3f0eb;
+  --paper-mid: #e8e4de;
+  --accent: #2d5a3d;
+  --accent-light: #e8f0eb;
+  --accent-mid: #4a7c5c;
+  --warn: #8b5e3c;
+  --warn-light: #f5ede4;
+  --serif: 'Noto Serif JP', serif;
+  --sans: 'Zen Kaku Gothic New', sans-serif;
+  --radius: 4px;
+  --radius-lg: 8px;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.7;
+}
