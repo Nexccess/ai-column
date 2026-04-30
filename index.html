@@ -1,294 +1,438 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>コラム生成ツール | PathFlow Column</title>
-  <meta name="description" content="専門知識を、伝わる言葉に。最短1分で「読まれる」コラムを。士業・コンサル・店長の発信が続かないを解消するAIコラム生成ツール。">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --navy:#1a365d;--navy-mid:#1e3f6e;--navy-light:#254980;--navy-pale:#f0f4f9;
-      --gold:#b8922a;--gold-light:#d4af37;--gold-line:rgba(184,146,42,0.25);
-      --white:#ffffff;--off-white:#fafaf8;--ink:#1a1a2e;--text:#3a3a52;
-      --text-muted:#8a8aaa;--border:rgba(26,54,93,0.1);
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{background:var(--white);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-weight:300;line-height:1.8;overflow-x:hidden}
-    nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:18px 6%;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:400;color:var(--navy);letter-spacing:0.2em;text-decoration:none}
-    .nav-logo span{color:var(--text-muted);font-size:0.72rem;letter-spacing:0.12em;margin-left:10px}
-    .nav-cta{font-size:0.72rem;font-weight:400;letter-spacing:0.18em;color:var(--white);background:var(--navy);padding:9px 22px;text-decoration:none;transition:background 0.3s}
-    .nav-cta:hover{background:var(--navy-light)}
-    #hero{min-height:100vh;display:flex;align-items:center;padding:140px 6% 100px;position:relative;overflow:hidden;background:var(--off-white)}
-    .hero-deco{position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:55vw;height:55vw;max-width:720px;max-height:720px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(26,54,93,0.06),transparent 65%);pointer-events:none}
-    .hero-content{max-width:680px;position:relative;z-index:1}
-    .hero-eyebrow{font-family:'Cormorant Garamond',serif;font-size:0.72rem;letter-spacing:0.4em;color:var(--gold);margin-bottom:28px;display:flex;align-items:center;gap:14px;opacity:0;animation:fadeUp 0.7s 0.1s ease forwards}
-    .hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold)}
-    .hero-catch{font-family:'Noto Serif JP',serif;font-size:clamp(2rem,4.2vw,3.6rem);font-weight:300;line-height:1.45;letter-spacing:0.03em;color:var(--ink);margin-bottom:12px;opacity:0;animation:fadeUp 0.7s 0.25s ease forwards}
-    .hero-catch em{font-style:normal;color:var(--navy);font-weight:600}
-    .hero-catch-en{font-family:'Cormorant Garamond',serif;font-size:clamp(0.9rem,1.5vw,1.2rem);font-weight:300;font-style:italic;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:40px;opacity:0;animation:fadeUp 0.7s 0.35s ease forwards}
-    .hero-sub{font-size:0.88rem;color:var(--text);line-height:2;letter-spacing:0.04em;margin-bottom:52px;opacity:0;animation:fadeUp 0.7s 0.45s ease forwards}
-    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;opacity:0;animation:fadeUp 0.7s 0.55s ease forwards}
-    .btn-primary{display:inline-block;background:var(--navy);color:var(--white);font-size:0.82rem;font-weight:400;letter-spacing:0.18em;padding:16px 40px;text-decoration:none;transition:all 0.3s}
-    .btn-primary:hover{background:var(--navy-light);transform:translateY(-2px)}
-    .btn-secondary{display:inline-block;border:1px solid var(--border);color:var(--text);font-size:0.82rem;letter-spacing:0.18em;padding:16px 40px;text-decoration:none;transition:all 0.3s}
-    .btn-secondary:hover{border-color:var(--navy);color:var(--navy)}
-    section{padding:120px 6%}
-    .section-label{font-family:'Cormorant Garamond',serif;font-size:0.7rem;letter-spacing:0.4em;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px}
-    .section-label::before{content:'';width:32px;height:1px;background:var(--gold);opacity:0.7}
-    .section-title{font-family:'Noto Serif JP',serif;font-size:clamp(1.6rem,2.8vw,2.4rem);font-weight:300;letter-spacing:0.04em;line-height:1.6;color:var(--ink);margin-bottom:20px}
-    .section-desc{font-size:0.85rem;color:var(--text);line-height:2.1;letter-spacing:0.04em;max-width:580px;margin-bottom:64px}
-    #problem{background:var(--white)}
-    .problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-    .problem-card{padding:48px 36px;background:var(--navy-pale);border-top:3px solid transparent;transition:border-color 0.3s,background 0.3s}
-    .problem-card:hover{border-top-color:var(--navy);background:#e8eef5}
-    .problem-icon{font-size:1.8rem;margin-bottom:24px}
-    .problem-title{font-family:'Noto Serif JP',serif;font-size:1rem;font-weight:400;color:var(--ink);letter-spacing:0.04em;margin-bottom:16px;line-height:1.6}
-    .problem-body{font-size:0.8rem;color:var(--text);line-height:2;letter-spacing:0.03em}
-    #solution{background:var(--navy)}
-    #solution .section-label{color:var(--gold-light)}
-    #solution .section-label::before{background:var(--gold-light)}
-    #solution .section-title{color:var(--white)}
-    #solution .section-desc{color:rgba(255,255,255,0.6)}
-    .solution-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-    .solution-card{padding:48px 36px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);transition:background 0.3s,border-color 0.3s;position:relative;overflow:hidden}
-    .solution-card::before{content:'';position:absolute;top:0;left:0;width:0;height:3px;background:var(--gold-light);transition:width 0.5s}
-    .solution-card:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15)}
-    .solution-card:hover::before{width:100%}
-    .solution-num{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--gold-light);opacity:0.25;line-height:1;margin-bottom:20px}
-    .solution-title{font-family:'Noto Serif JP',serif;font-size:1rem;font-weight:400;color:var(--white);letter-spacing:0.05em;margin-bottom:16px}
-    .solution-body{font-size:0.8rem;color:rgba(255,255,255,0.55);line-height:2;letter-spacing:0.03em}
-    #usecase{background:var(--off-white)}
-    .usecase-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
-    .usecase-card{padding:52px 48px;background:var(--white);border:1px solid var(--border);transition:border-color 0.3s,box-shadow 0.3s}
-    .usecase-card:hover{border-color:rgba(26,54,93,0.25);box-shadow:0 8px 40px rgba(26,54,93,0.06)}
-    .usecase-tag{display:inline-block;font-size:0.68rem;letter-spacing:0.2em;color:var(--navy);background:var(--navy-pale);padding:4px 14px;margin-bottom:24px}
-    .usecase-title{font-family:'Noto Serif JP',serif;font-size:1.15rem;font-weight:400;color:var(--ink);letter-spacing:0.04em;margin-bottom:16px;line-height:1.6}
-    .usecase-body{font-size:0.82rem;color:var(--text);line-height:2;letter-spacing:0.03em;margin-bottom:28px}
-    .usecase-quote{font-family:'Noto Serif JP',serif;font-size:0.82rem;color:var(--navy);border-left:2px solid var(--gold);padding-left:16px;line-height:1.8;opacity:0.8}
-    #how{background:var(--white)}
-    .how-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;margin-top:64px}
-    .how-flow::before{content:'';position:absolute;top:44px;left:16.67%;right:16.67%;height:1px;background:linear-gradient(90deg,var(--navy),var(--navy-light));opacity:0.15}
-    .how-step{padding:0 36px;text-align:center}
-    .how-step-circle{width:88px;height:88px;border-radius:50%;background:var(--navy-pale);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 32px;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:400;color:var(--navy);transition:background 0.3s,border-color 0.3s,color 0.3s}
-    .how-step:hover .how-step-circle{background:var(--navy);color:var(--white);border-color:var(--navy)}
-    .how-step-title{font-family:'Noto Serif JP',serif;font-size:0.95rem;font-weight:400;color:var(--ink);letter-spacing:0.05em;margin-bottom:12px}
-    .how-step-body{font-size:0.78rem;color:var(--text);line-height:2;letter-spacing:0.03em}
-    #compare{background:var(--navy-pale)}
-    .compare-table{width:100%;border-collapse:collapse;margin-top:64px}
-    .compare-table th{padding:20px 36px;font-size:0.72rem;letter-spacing:0.2em;font-weight:400;text-align:left}
-    .compare-table th:first-child{color:var(--text-muted)}
-    .compare-table th:nth-child(2){background:rgba(255,80,80,0.06);color:var(--text-muted)}
-    .compare-table th:nth-child(3){background:var(--navy);color:var(--white)}
-    .compare-table td{padding:20px 36px;font-size:0.82rem;border-top:1px solid var(--border);vertical-align:middle;line-height:1.8}
-    .compare-table td:first-child{color:var(--text);font-weight:400}
-    .compare-table td:nth-child(2){background:rgba(255,80,80,0.04);color:#c04040}
-    .compare-table td:nth-child(3){background:rgba(26,54,93,0.04);color:var(--navy);font-weight:400}
-    #cta{background:var(--navy);padding:140px 6%;text-align:center;position:relative;overflow:hidden}
-    .cta-pattern{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
-    .cta-inner{position:relative;z-index:1;max-width:620px;margin:0 auto}
-    .cta-eyebrow{font-family:'Cormorant Garamond',serif;font-size:0.72rem;letter-spacing:0.4em;color:var(--gold-light);margin-bottom:28px}
-    .cta-title{font-family:'Noto Serif JP',serif;font-size:clamp(1.5rem,2.8vw,2.2rem);font-weight:300;color:var(--white);letter-spacing:0.04em;line-height:1.7;margin-bottom:24px}
-    .cta-sub{font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:2.1;letter-spacing:0.04em;margin-bottom:52px}
-    .btn-cta{display:inline-block;background:var(--gold-light);color:var(--ink);font-size:0.82rem;font-weight:500;letter-spacing:0.2em;padding:18px 52px;text-decoration:none;transition:all 0.3s}
-    .btn-cta:hover{background:#c9a227;transform:translateY(-2px)}
-    .cta-note{margin-top:24px;font-size:0.68rem;color:rgba(255,255,255,0.3);letter-spacing:0.12em}
-    footer{background:var(--ink);padding:48px 6%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-    .footer-logo{font-family:'Cormorant Garamond',serif;font-size:1rem;letter-spacing:0.2em;color:var(--gold-light);text-decoration:none}
-    .footer-links{display:flex;gap:32px;list-style:none}
-    .footer-links a{font-size:0.7rem;letter-spacing:0.12em;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.3s}
-    .footer-links a:hover{color:var(--gold-light)}
-    .footer-copy{font-size:0.65rem;color:rgba(255,255,255,0.2);letter-spacing:0.1em}
-    .fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.7s ease,transform 0.7s ease}
-    .fade-in.visible{opacity:1;transform:none}
-    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-    @media(max-width:900px){
-      .problem-grid,.solution-grid{grid-template-columns:1fr}
-      .usecase-grid{grid-template-columns:1fr}
-      .how-flow{grid-template-columns:1fr}
-      .how-flow::before{display:none}
-      .how-step{padding:32px 0;text-align:left;display:flex;align-items:flex-start;gap:24px}
-      .how-step-circle{margin:0;flex-shrink:0;width:56px;height:56px;font-size:1.2rem}
-      .compare-table{font-size:0.75rem}
-      .compare-table td,.compare-table th{padding:14px 16px}
-      footer{flex-direction:column;text-align:center}
-      .footer-links{justify-content:center}
-    }
-    @media(max-width:600px){
-      section{padding:80px 5%}
-      .hero-actions{flex-direction:column}
-      .btn-primary,.btn-secondary,.btn-cta{text-align:center;display:block}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コラム生成 AI</title>
+<meta name="description" content="商用利用前提のコラム文章を生成します">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #1a1814;
+  --ink-mid:    #4a4640;
+  --ink-light:  #8a8680;
+  --ink-faint:  #c8c4be;
+  --paper:      #faf9f6;
+  --paper-warm: #f3f0eb;
+  --paper-mid:  #e8e4de;
+  --accent:     #2d5a3d;
+  --accent-light:#e8f0eb;
+  --accent-mid: #4a7c5c;
+  --warn:       #8b5e3c;
+  --warn-light: #f5ede4;
+  --serif: 'Noto Serif JP', serif;
+  --sans:  'Zen Kaku Gothic New', sans-serif;
+  --radius: 4px;
+  --radius-lg: 8px;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; line-height: 1.7; }
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px; min-height: 100vh;
+  background: var(--ink); color: var(--paper);
+  display: flex; flex-direction: column;
+  padding: 2rem 1.5rem;
+  position: sticky; top: 0; height: 100vh;
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 12px; margin-bottom: 2.5rem; }
+.logo-mark {
+  font-family: var(--serif); font-size: 28px; font-weight: 300;
+  width: 44px; height: 44px;
+  border: 1px solid rgba(250,249,246,.25);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-title { font-size: 13px; font-weight: 500; letter-spacing: .04em; color: var(--paper); }
+.logo-sub { font-size: 10px; color: rgba(250,249,246,.4); letter-spacing: .1em; margin-top: 1px; }
+.nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: auto; }
+.nav-item {
+  font-size: 12px; letter-spacing: .06em; padding: 8px 10px;
+  border-radius: var(--radius); color: rgba(250,249,246,.5); cursor: pointer;
+}
+.nav-item.active { color: var(--paper); background: rgba(250,249,246,.08); }
+.side-notice {
+  font-size: 10px; line-height: 1.7; color: rgba(250,249,246,.3);
+  border-top: 1px solid rgba(250,249,246,.08);
+  padding-top: 1.25rem; margin-top: 2rem;
+}
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; background: var(--paper); }
+.container { max-width: 680px; margin: 0 auto; padding: 3rem 2.5rem 5rem; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 2.5rem; }
+.section-header {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 1rem; padding-bottom: .6rem;
+  border-bottom: 1px solid var(--paper-mid);
+}
+.section-num {
+  font-family: var(--serif); font-size: 11px; font-weight: 300;
+  color: var(--ink-faint); letter-spacing: .1em;
+}
+.section-title {
+  font-size: 13px; font-weight: 500; color: var(--ink-mid);
+  letter-spacing: .06em; display: flex; align-items: center; gap: 8px;
+}
+.optional {
+  font-size: 10px; font-weight: 400; color: var(--ink-faint);
+  border: 1px solid var(--ink-faint); padding: 1px 6px; border-radius: 3px;
+}
+
+/* ── FIELDS ── */
+.field-group { margin-bottom: 1.1rem; }
+label.lbl {
+  display: block; font-size: 11px; color: var(--ink-light);
+  letter-spacing: .06em; margin-bottom: 6px;
+}
+textarea, input, select {
+  font-family: var(--sans); font-size: 14px; color: var(--ink);
+  background: var(--paper-warm); border: 1px solid var(--paper-mid);
+  border-radius: var(--radius); width: 100%; padding: 9px 12px;
+  transition: border-color .15s, background .15s; line-height: 1.6;
+}
+textarea { resize: vertical; min-height: 72px; }
+textarea::placeholder, input::placeholder { color: var(--ink-faint); }
+textarea:focus, input:focus, select:focus {
+  outline: none; border-color: var(--accent-mid); background: #fff;
+}
+select {
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8680'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* ── PILLS ── */
+.pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  font-family: var(--sans); font-size: 12px; padding: 5px 14px;
+  border: 1px solid var(--paper-mid); border-radius: 100px;
+  background: var(--paper-warm); color: var(--ink-mid);
+  cursor: pointer; transition: all .15s;
+}
+.pill:hover { border-color: var(--accent-mid); color: var(--accent); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── GRID ── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── BUTTON ── */
+.generate-btn {
+  width: 100%; padding: 13px;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  letter-spacing: .06em; color: var(--paper);
+  background: var(--ink); border: none; border-radius: var(--radius);
+  cursor: pointer; transition: opacity .15s; margin-top: .5rem;
+}
+.generate-btn:hover:not(:disabled) { opacity: .8; }
+.generate-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* ── LOADING DOTS ── */
+.loading-wrap { display: flex; align-items: center; justify-content: center; }
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(250,249,246,.7);
+  animation: blink .9s infinite;
+  margin: 0 2px;
+}
+.dot:nth-child(2) { animation-delay: .15s; }
+.dot:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%,100%{ opacity:.2 } 50%{ opacity:1 } }
+
+/* ── RESULT ── */
+.error-box {
+  margin-top: 1rem; padding: 10px 14px;
+  background: var(--warn-light);
+  border-left: 2px solid var(--warn);
+  font-size: 13px; color: var(--warn);
+}
+.result-section {
+  margin-top: 2.5rem; padding-top: 2rem;
+  border-top: 1px solid var(--paper-mid);
+}
+.result-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+}
+.result-title {
+  font-size: 12px; font-weight: 500; letter-spacing: .08em;
+  color: var(--ink-light); text-transform: uppercase;
+}
+.result-meta { display: flex; align-items: center; gap: 12px; }
+.char-count { font-size: 11px; color: var(--ink-faint); }
+.copy-btn {
+  font-family: var(--sans); font-size: 12px; padding: 5px 14px;
+  border: 1px solid var(--paper-mid); border-radius: 100px;
+  background: transparent; color: var(--ink-mid); cursor: pointer; transition: all .15s;
+}
+.copy-btn:hover { border-color: var(--accent-mid); color: var(--accent); }
+.warn-box {
+  margin-bottom: 1rem; padding: 9px 14px;
+  background: var(--warn-light); border-left: 2px solid var(--warn);
+  font-size: 12px; color: var(--warn);
+}
+.result-body {
+  font-family: var(--serif); font-size: 15px; font-weight: 300;
+  line-height: 2; color: var(--ink); white-space: pre-wrap;
+  background: #fff; border: 1px solid var(--paper-mid);
+  border-radius: var(--radius-lg); padding: 2rem 2.25rem; letter-spacing: .02em;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; min-height: unset; height: auto;
+    position: static; flex-direction: row;
+    align-items: center; padding: 1rem 1.25rem;
+  }
+  .side-notice, .nav { display: none; }
+  .logo { margin-bottom: 0; }
+  .container { padding: 2rem 1.25rem 4rem; }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-<nav>
-  <a href="https://www.pathflow.org/" class="nav-logo">PathFlow <span>Column</span></a>
-  <a href="https://column.nexccess.com/" class="nav-cta" target="_blank">無料で試す</a>
-</nav>
 
-<section id="hero">
-  <div class="hero-deco"></div>
-  <div class="hero-content">
-    <div class="hero-eyebrow">COLUMN TOOL — PathFlow</div>
-    <h1 class="hero-catch">専門知識を、<br><em>伝わる言葉に。</em></h1>
-    <div class="hero-catch-en">Turn expertise into words that resonate.</div>
-    <p class="hero-sub">士業・コンサル・店長の「発信が続かない」を解消する。<br>あなたの知識を、最短1分で「読まれる」コラムに変える<br>AIコンテンツ生成ツール。</p>
-    <div class="hero-actions">
-      <a href="https://column.nexccess.com/" class="btn-primary" target="_blank">無料で試してみる</a>
-      <a href="#problem" class="btn-secondary">どんなツールか見る</a>
-    </div>
-  </div>
-</section>
+<div class="layout">
 
-<section id="problem">
-  <div class="section-label">Problem</div>
-  <h2 class="section-title">発信したい気持ちはある。<br>でも、続かない理由がある。</h2>
-  <p class="section-desc">専門知識を持つ人ほど、「正確に伝えよう」とするあまり、読者に届かなくなる。</p>
-  <div class="problem-grid">
-    <div class="problem-card fade-in">
-      <div class="problem-icon">📋</div>
-      <div class="problem-title">専門用語が多すぎて、<br>相手に伝わらない</div>
-      <p class="problem-body">税務・法律・財務の専門用語は正確だが、一般の経営者や顧客には難解。価値があるのに、読まれない。</p>
-    </div>
-    <div class="problem-card fade-in" style="transition-delay:0.1s">
-      <div class="problem-icon">⏱️</div>
-      <div class="problem-title">書くことが本業を<br>圧迫している</div>
-      <p class="problem-body">コラム1本に数時間。メルマガの下書きに半日。発信の大切さはわかっているが、時間が圧倒的に足りない。</p>
-    </div>
-    <div class="problem-card fade-in" style="transition-delay:0.2s">
-      <div class="problem-icon">🔄</div>
-      <div class="problem-title">ネタが尽きて、<br>更新が止まる</div>
-      <p class="problem-body">最初は続いていた「店長のつぶやき」も、半年後には止まっている。マンネリと義務感が発信の意欲を削ぐ。</p>
-    </div>
-  </div>
-</section>
-
-<section id="solution">
-  <div class="section-label">Solution</div>
-  <h2 class="section-title">あなたの知識を、<br>読まれる言葉に変換する。</h2>
-  <p class="section-desc">PathFlow Columnは、特定の職業領域に最適化した出力ロジックを持つ。汎用AIとは、そこが違う。</p>
-  <div class="solution-grid">
-    <div class="solution-card fade-in">
-      <div class="solution-num">01</div>
-      <div class="solution-title">専門性を一般語へ</div>
-      <p class="solution-body">難解な専門用語を、ターゲット読者に「刺さる表現」に変換する。正確さを保ちながら、届く言葉に変える。</p>
-    </div>
-    <div class="solution-card fade-in" style="transition-delay:0.1s">
-      <div class="solution-num">02</div>
-      <div class="solution-title">圧倒的な時短</div>
-      <p class="solution-body">数時間の執筆作業を、最短1分に。キーワードと方向性を入力するだけで、構成から本文までAIがアシストする。</p>
-    </div>
-    <div class="solution-card fade-in" style="transition-delay:0.2s">
-      <div class="solution-num">03</div>
-      <div class="solution-title">職域に特化した出力</div>
-      <p class="solution-body">士業・コンサル・店舗経営者の語り口と読者像を理解したロジックで生成。汎用AIには出せない精度がある。</p>
-    </div>
-  </div>
-</section>
-
-<section id="usecase">
-  <div class="section-label">Use Cases</div>
-  <h2 class="section-title">こんな場面で、<br>使われています。</h2>
-  <div class="usecase-grid">
-    <div class="usecase-card fade-in">
-      <div class="usecase-tag">士業・コンサルタント</div>
-      <div class="usecase-title">法改正の解説を、顧客が<br>「自分事」として読める文章に</div>
-      <p class="usecase-body">税制改正・相続法の改正・補助金情報。正確に伝えることと、わかりやすく伝えることを両立させる。顧問先への信頼構築に直結する。</p>
-      <div class="usecase-quote">「専門用語を使わずに正確に書く、という矛盾が解消された」</div>
-    </div>
-    <div class="usecase-card fade-in" style="transition-delay:0.1s">
-      <div class="usecase-tag">店舗オーナー・店長</div>
-      <div class="usecase-title">「店長のつぶやき」を、<br>ファンを育てるコンテンツに</div>
-      <p class="usecase-body">日々の仕入れのこと、商品へのこだわり、季節の一言。断片的な想いを、読み続けたくなる発信に変える。更新の義務感がなくなる。</p>
-      <div class="usecase-quote">「書くことが好きになった。ネタが尽きる感覚がなくなった」</div>
-    </div>
-  </div>
-</section>
-
-<section id="how">
-  <div class="section-label">How It Works</div>
-  <h2 class="section-title">使い方は、3ステップだけ。</h2>
-  <div class="how-flow">
-    <div class="how-step fade-in">
-      <div class="how-step-circle">1</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">文</div>
       <div>
-        <div class="how-step-title">テーマと対象読者を入力</div>
-        <p class="how-step-body">「今月の税制改正について、中小企業の経営者向けに」など、伝えたい内容と読んでほしい人を入力する。</p>
+        <div class="logo-title">コラム生成 AI</div>
+        <div class="logo-sub">Column Generator</div>
       </div>
     </div>
-    <div class="how-step fade-in" style="transition-delay:0.12s">
-      <div class="how-step-circle">2</div>
-      <div>
-        <div class="how-step-title">AIが構成・本文を生成</div>
-        <p class="how-step-body">職業領域に特化したロジックで、読まれやすい構成と本文を自動生成。専門用語を平易な表現に変換する。</p>
+    <nav class="nav">
+      <span class="nav-item active">生成</span>
+    </nav>
+    <div class="side-notice">
+      本ツールは情報整理を目的としています。最終的な内容の判断は利用者が行ってください。
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="container">
+
+      <!-- 01 テーマ -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <h2 class="section-title">テーマ</h2>
+        </div>
+        <textarea id="topic" placeholder="例：フリーランスのインボイス対応について考える" rows="3"></textarea>
       </div>
-    </div>
-    <div class="how-step fade-in" style="transition-delay:0.24s">
-      <div class="how-step-circle">3</div>
-      <div>
-        <div class="how-step-title">確認・微調整して発信</div>
-        <p class="how-step-body">生成された文章を確認し、自分らしい表現に微調整する。そのままブログ・メルマガ・SNSに使える。</p>
+
+      <!-- 02 文章条件 -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2 class="section-title">文章条件</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="lbl">トーン</label>
+          <div class="pill-group" id="tone-group"></div>
+        </div>
+
+        <div class="field-group">
+          <label class="lbl">文字数</label>
+          <div class="pill-group" id="length-group"></div>
+        </div>
+
+        <div class="grid3">
+          <div class="field-group">
+            <label class="lbl">狙い</label>
+            <select id="purpose"></select>
+          </div>
+          <div class="field-group">
+            <label class="lbl">読者レベル</label>
+            <select id="reader_level"></select>
+          </div>
+          <div class="field-group">
+            <label class="lbl">リスク許容度</label>
+            <select id="risk_level"></select>
+          </div>
+        </div>
       </div>
+
+      <!-- 03 クライアント情報 -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title">クライアント情報 <span class="optional">任意</span></h2>
+        </div>
+        <div class="grid2">
+          <div class="field-group">
+            <label class="lbl">業種・業界</label>
+            <input type="text" id="industry" placeholder="例：税理士事務所">
+          </div>
+          <div class="field-group">
+            <label class="lbl">規模感</label>
+            <input type="text" id="company_size" placeholder="例：中小企業">
+          </div>
+          <div class="field-group">
+            <label class="lbl">地域</label>
+            <input type="text" id="area" placeholder="例：東京都">
+          </div>
+          <div class="field-group">
+            <label class="lbl">立場</label>
+            <input type="text" id="position" placeholder="例：経営者向け">
+          </div>
+        </div>
+      </div>
+
+      <button class="generate-btn" id="gen-btn" onclick="generate()" disabled>
+        コラムを生成する
+      </button>
+
+      <div id="error-box"></div>
+      <div id="result-area"></div>
+
     </div>
-  </div>
-</section>
-
-<section id="compare">
-  <div class="section-label">Before / After</div>
-  <h2 class="section-title">導入前後の変化。</h2>
-  <table class="compare-table fade-in">
-    <thead>
-      <tr>
-        <th>比較項目</th>
-        <th>導入前</th>
-        <th>PathFlow Column 導入後</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>コラム1本の作成時間</td><td>2〜4時間</td><td>最短1分〜（微調整含め15分以内）</td></tr>
-      <tr><td>発信頻度</td><td>月1〜2本（不定期）</td><td>週1〜2本（定期化できる）</td></tr>
-      <tr><td>読者からの反応</td><td>「難しくてよくわからない」</td><td>「わかりやすい」「参考になった」</td></tr>
-      <tr><td>更新が止まる理由</td><td>ネタ切れ・時間不足・マンネリ</td><td>テーマ提案機能でネタ切れなし</td></tr>
-      <tr><td>発信に対する気持ち</td><td>義務感・プレッシャー</td><td>習慣として自然に続く</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section id="cta">
-  <div class="cta-pattern"></div>
-  <div class="cta-inner">
-    <div class="cta-eyebrow fade-in">START FREE</div>
-    <h2 class="cta-title fade-in">まず、1本だけ<br>作ってみてください。</h2>
-    <p class="cta-sub fade-in">登録不要。費用も義務もない。<br>今すぐ、あなたの知識を「伝わる言葉」に変えてみる。</p>
-    <div class="fade-in">
-      <a href="https://column.nexccess.com/" class="btn-cta" target="_blank">無料でコラムを生成する</a>
-    </div>
-    <p class="cta-note fade-in" style="transition-delay:0.15s">※ 登録・ログイン不要。入力内容は保存されません</p>
-  </div>
-</section>
-
-<footer>
-  <a href="https://www.pathflow.org/" class="footer-logo">PathFlow</a>
-  <ul class="footer-links">
-    <li><a href="https://nexccess.com/">Nexccess</a></li>
-    <li><a href="https://column.nexccess.com/" target="_blank">ツールを試す</a></li>
-    <li><a href="https://nexccess.com/#contact">お問い合わせ</a></li>
-  </ul>
-  <span class="footer-copy">© 2026 Nexccess LLC. All rights reserved.</span>
-</footer>
+  </main>
+</div>
 
 <script>
-  const observer = new IntersectionObserver(
-    entries => entries.forEach(e => {
-      if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}
-    }),
-    {threshold:0.1}
-  );
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+// ── 選択肢定義 ──
+const TONES = ['丁寧でわかりやすい','やわらかく親しみやすい','落ち着いた専門的','フランクで読みやすい'];
+const LENGTHS = [['400字','400'],['600字','600'],['800字','800'],['1000字','1000'],['1200字','1200']];
+const PURPOSES = ['認知・理解促進','行動を後押し','不安の解消','情報整理'];
+const READER_LEVELS = ['初心者・一般読者','中級者','専門家・上級者'];
+const RISK_LEVELS = ['低め（慎重に）','標準','やや高め'];
+
+let selectedTone = TONES[0];
+let selectedLength = '800';
+
+// ── 初期化 ──
+(function() {
+  // Tone pills
+  const tg = document.getElementById('tone-group');
+  TONES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (t === selectedTone ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => {
+      selectedTone = t;
+      tg.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    tg.appendChild(btn);
+  });
+
+  // Length pills
+  const lg = document.getElementById('length-group');
+  LENGTHS.forEach(([label, val]) => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (val === selectedLength ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => {
+      selectedLength = val;
+      lg.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    lg.appendChild(btn);
+  });
+
+  // Selects
+  [['purpose', PURPOSES], ['reader_level', READER_LEVELS], ['risk_level', RISK_LEVELS]].forEach(([id, opts]) => {
+    const sel = document.getElementById(id);
+    opts.forEach(o => sel.append(new Option(o, o)));
+    if (id === 'risk_level') sel.selectedIndex = 1;
+  });
+
+  // Topic → enable button
+  document.getElementById('topic').addEventListener('input', e => {
+    document.getElementById('gen-btn').disabled = !e.target.value.trim();
+  });
+})();
+
+// ── 生成 ──
+async function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) return;
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:12px">生成しています...</span></span>';
+
+  document.getElementById('error-box').innerHTML = '';
+  document.getElementById('result-area').innerHTML = '';
+
+  const payload = {
+    topic,
+    tone:         selectedTone,
+    length:       selectedLength,
+    purpose:      document.getElementById('purpose').value,
+    reader_level: document.getElementById('reader_level').value,
+    risk_level:   document.getElementById('risk_level').value,
+    industry:     document.getElementById('industry').value,
+    company_size: document.getElementById('company_size').value,
+    area:         document.getElementById('area').value,
+    position:     document.getElementById('position').value,
+  };
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'エラーが発生しました');
+
+    const warn = data.ngHits?.length > 0
+      ? `<div class="warn-box">NG表現が含まれている可能性があります：${data.ngHits.join('、')}</div>`
+      : '';
+
+    document.getElementById('result-area').innerHTML = `
+      <div class="result-section">
+        <div class="result-header">
+          <div class="result-title">生成結果</div>
+          <div class="result-meta">
+            <span class="char-count">${data.text.length}文字</span>
+            <button class="copy-btn" id="copy-btn">コピー</button>
+          </div>
+        </div>
+        ${warn}
+        <div class="result-body" id="result-body">${escHtml(data.text)}</div>
+      </div>`;
+
+    document.getElementById('copy-btn').onclick = () => {
+      navigator.clipboard.writeText(data.text);
+      const b = document.getElementById('copy-btn');
+      b.textContent = '✓ コピーしました';
+      setTimeout(() => b.textContent = 'コピー', 2000);
+    };
+
+  } catch (e) {
+    document.getElementById('error-box').innerHTML = `<div class="error-box">${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'コラムを生成する';
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 </script>
 </body>
 </html>
